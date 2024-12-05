@@ -1,0 +1,85 @@
+﻿@model List<UploadImages.Models.ImageModel>
+
+@{
+    ViewData["Title"] = "Uploaded Images";
+}
+
+<h1>Uploaded Images</h1>
+
+@if (Model != null && Model.Any())
+{
+    <form asp-action="Upload" method="get" enctype="multipart/form-data">
+        <button type="submit" style="padding: 5px 10px;">Upload</button>
+    </form>
+
+    <form asp-action="Search" method="get" style="margin-bottom: 20px;">
+        <select id="searchBox" type="text" name="query" multiple="multiple" style="width: 300px;"></select>
+        <button type="submit" style="padding: 5px 10px;">Search</button>
+    </form>
+
+    @section scripts {
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- jQuery (Select2 kräver jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var preselectedTags = @Html.Raw(JsonSerializer.Serialize(ViewBag.SelectedTags ?? new List<string>()))
+
+            $('#searchBox').select2({
+                placeholder: "Search images or tags...",
+                ajax: {
+                    url: '/Home/GetTags',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            term: params.term // Term som skickas till servern
+                        };
+                    },
+                    processResults: function (data) {
+                    return {
+                        results: data.map(tag => ({ id: tag, text: tag }))
+                    };
+                }
+                },
+                minimumInputLength: 2, // Minsta antal tecken innan autocomplete visas
+            });
+
+            // Fyll i tidigare valda taggar
+            preselectedTags.forEach(function (tag) {
+            var option = new Option(tag, tag, true, true);
+            $('#searchBox').append(option).trigger('change');
+        });
+        });
+    </script>
+    }
+
+    <div style="display:flex; flex-wrap: wrap; gap: 10px;">
+        @foreach (var image in Model)
+        {
+        <div style="
+            flex-basis: 30%;
+            border: solid;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            padding: 10px;">
+            @* <p>File URL: @image.Url</p> *@
+            <a asp-controller="Home" asp-action="Details" asp-route-id="@image.Id" style="text-decoration: none; color: inherit;">
+                <img src="@image.Url" alt="@image.Name" style="width: 100%; max-height: 400px;" />
+            </a>
+
+        </div>
+        }
+    </div>
+    
+}
+else
+{
+    <p>No images uploaded.</p>
+}

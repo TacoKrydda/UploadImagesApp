@@ -1,0 +1,32 @@
+﻿@model UploadImages.Models.ImageModel
+
+@{
+    ViewData["Title"] = "Confirm Delete";
+}
+
+<h1>Confirm Delete</h1>
+
+<div style="max-width: 600px; margin: auto; border: solid; padding: 20px;">
+    <img src="@Model.Url" alt="@Model.Name" style="width: 100%; max-height: 400px;" />
+    <p><strong>Name:</strong> @Model.Name</p>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p>
+        <strong>Tags:</strong>
+        @if (Model.Tags != null && Model.Tags.Any())
+        {
+            @string.Join(", ", Model.Tags)
+        }
+        else
+        {
+            <span>No tags</span>
+        }
+    </p>
+    <p><strong>Uploaded:</strong> @Model.UploadDate</p>
+
+    <form asp-controller="Home" asp-action="Delete" method="post" style="display: inline;">
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" style="background-color: red; color: white; border: none; padding: 10px 20px; cursor: pointer;">Confirm Delete</button>
+    </form>
+
+    <a asp-controller="Home" asp-action="Details" asp-route-id="@Model.Id" style="margin-left: 10px;">Cancel</a>
+</div>
